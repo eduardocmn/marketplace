@@ -1,13 +1,13 @@
 package br.com.market.marketplace;
 
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import dto.ProdutoDTO;
-import static org.junit.Assert.*;
 import services.MarketService;
 import util.Validacao;
+import dto.ProdutoDTO;
 
 
 public class ProdutoTest{

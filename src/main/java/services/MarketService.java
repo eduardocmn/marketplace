@@ -13,11 +13,11 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import repository.Repositorio;
 import dto.ArquivoDTO;
 import dto.FilaUploadDTO;
 import dto.ProdutoDTO;
 import entidade.Produto;
-import repository.Repositorio;
 
 @Service
 public class MarketService {
