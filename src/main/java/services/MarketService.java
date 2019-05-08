@@ -13,8 +13,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import dto.Arquivo;
-import dto.FilaUpload;
+import dto.ArquivoDTO;
+import dto.FilaUploadDTO;
 import dto.ProdutoDTO;
 import entidade.Produto;
 import repository.Repositorio;
@@ -63,19 +63,19 @@ public class MarketService {
 	public void processarPlanilha() {
 		
 		//Se possuir planilha na fila executa
-		if(FilaUpload.fila.size() > 0) {
+		if(FilaUploadDTO.fila.size() > 0) {
 			
-			Arquivo arquivo = FilaUpload.fila.remove();
+			ArquivoDTO arquivo = FilaUploadDTO.fila.remove();
 			
 			List<ProdutoDTO> listaProduto = carregarProdutos(arquivo);
 			this.cadastrarProduto(listaProduto);
 			
-			FilaUpload.arquivosProcessados.add(arquivo);
+			FilaUploadDTO.arquivosProcessados.add(arquivo);
 		}
 		
 	}
 	
-	public List<ProdutoDTO> carregarProdutos(Arquivo arquivo) {
+	public List<ProdutoDTO> carregarProdutos(ArquivoDTO arquivo) {
 		
 		List<ProdutoDTO> listaProduto = new ArrayList<ProdutoDTO>();
 		ProdutoDTO produtoDTO;

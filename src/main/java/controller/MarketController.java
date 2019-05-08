@@ -1,6 +1,7 @@
 package controller;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,86 +18,117 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import dto.Arquivo;
-import dto.FilaUpload;
+import dto.ArquivoDTO;
+import dto.FilaUploadDTO;
 import dto.ProdutoDTO;
+import response.Response;
 import services.MarketService;
+import util.Validacao;
 
 @RestController
 @RequestMapping("/leroy")
 public class MarketController {
 	
+	private MarketService service = new MarketService();
+	
 	@GetMapping(path = "/consultarProcessamentoPlanilhas")
-	public ResponseEntity<List<String>> teste() {
+	public ResponseEntity<List<String>> consultarPlanilhasEnviadas() {
 		
-		List<String> listaArquivosProcessados = new ArrayList<String>();
+		List<String> listaArquivosEnviados = new ArrayList<String>();
 		
-		
-		for(Arquivo arquivo : FilaUpload.arquivosProcessados){
+		//Verifica quais arquivos foram processados
+		for(ArquivoDTO arquivo : FilaUploadDTO.arquivosProcessados){
 			
-			listaArquivosProcessados.add("Planilha Processada:"+arquivo.getNome());
+			listaArquivosEnviados.add("Arquivo pocessado: "+arquivo.getNome());
 		}
 		
-		for(Arquivo arquivo : FilaUpload.fila){
+		//Verifica quais arquivos estão na fila para serem processados
+		for(ArquivoDTO arquivo : FilaUploadDTO.fila){
 			
-			listaArquivosProcessados.add("Planilha na fila para ser processada:"+arquivo.getNome());
+			listaArquivosEnviados.add("Arquivo na fila para processamento:"+arquivo.getNome());
 		}
 		
-		return ResponseEntity.status(HttpStatus.OK).body(listaArquivosProcessados);
+		return ResponseEntity.status(HttpStatus.OK).body(listaArquivosEnviados);
 	}
 	
 	@PostMapping(path = "/upload")
-	public ResponseEntity<String> uploadPlanilha(MultipartFile file) {
+	public ResponseEntity<Response> uploadPlanilha(MultipartFile file) {
 		
 		try {
 			
-			FilaUpload.fila.add(new Arquivo(file.getOriginalFilename(),file.getInputStream()));
+			if(!Validacao.isArquivoNulo(file)){
+				
+				FilaUploadDTO.fila.add(new ArquivoDTO(file.getOriginalFilename(),file.getInputStream()));
+				
+			}else{
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Response("Arquivo não enviado",null));
+			}
+			
+			
 			
 		} catch (IOException e) {
 			
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Erro ao carregar planilha");
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Response("Erro ao carregar planilha",null));
 		}
 		
-		return ResponseEntity.status(HttpStatus.OK).body("Planilha na fila de processamento");
+		return ResponseEntity.status(HttpStatus.OK).body(new Response("Planilha enviada para fila de processamento",null));
 	}
 	
 	@GetMapping(path = "/buscarProduto/{id}")
-	public ResponseEntity<ProdutoDTO> buscarProduto(@PathVariable Long id) {
+	public ResponseEntity<Response> buscarProduto(@PathVariable Long id) {
 		
 		try {
-			MarketService service = new MarketService();
-			ProdutoDTO produto = service.buscarProduto(id);
 			
-			return ResponseEntity.status(HttpStatus.OK).body(produto);
+			if(!Validacao.isNull(id)){
+				
+				ProdutoDTO produto = service.buscarProduto(id);
+				return ResponseEntity.status(HttpStatus.OK).body(new Response("Produto encontrado",produto));
+				
+			}else{
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Response("Informe o id do produto",null));
+			}
 			
 		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Response("Erro ao buscar produto",null));
 		}
 	}
 	
 	@PutMapping(path = "/alterarProduto")
-	public ResponseEntity<ProdutoDTO> alterarProduto(@RequestBody ProdutoDTO produto) {
+	public ResponseEntity<Response> alterarProduto(@RequestBody ProdutoDTO produto) {
 		
 		try {
-			MarketService service = new MarketService();
-			produto = service.alterarProduto(produto);
+			
+			if(!Validacao.isIdProdutoNull(produto)){
+				
+				produto = service.alterarProduto(produto);
+				
+				return ResponseEntity.status(HttpStatus.OK).body(new Response("Produto alterado",produto));
+				
+			}else{
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Response("Informe o id do produto",produto));
+			}
+			
 		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Response("Erro ao alterar o produto",produto));
 		}
-		
-		return ResponseEntity.status(HttpStatus.OK).body(produto);
 	}
 	
 	@DeleteMapping(path = "/deletarProduto/{id}")
-	public ResponseEntity<String> deletarProduto(@PathVariable Long id) {
+	public ResponseEntity<Response> deletarProduto(@PathVariable Long id) {
 		
 		try {
-			MarketService service = new MarketService();
-			service.deletarProduto(id);
+			if(!Validacao.isNull(id)){
+				
+				service.deletarProduto(id);
+				
+				return ResponseEntity.status(HttpStatus.OK).body(new Response("Produto removido",null));
+				
+			}else{
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Response("Informe o id do produto",null));
+			}
 		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Erro ao deletar produto");
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Response("Erro ao deletar o produto",null));
 		}
-		return ResponseEntity.status(HttpStatus.OK).body("Produto removido");
 	}
 	
 }

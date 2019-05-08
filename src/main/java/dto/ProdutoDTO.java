@@ -28,6 +28,7 @@ public class ProdutoDTO implements Serializable{
 	
 	private long codigoCategoria;
 	
+	
 	public ProdutoDTO() {
 	}
 	

@@ -2,15 +2,15 @@ package dto;
 
 import java.io.InputStream;
 
-public class Arquivo {
+public class ArquivoDTO {
 
 	private String nome;
 	private InputStream inputStream;
 	
-	public Arquivo() {
+	public ArquivoDTO() {
 	}
 	
-	public Arquivo(String nome,InputStream inputStream) {
+	public ArquivoDTO(String nome,InputStream inputStream) {
 		this.nome = nome;
 		this.inputStream = inputStream;
 	}
